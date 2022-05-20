@@ -1,17 +1,30 @@
-require 'singleton'
-
 class Gameboard
-  include Singleton
+  ALLOWED_SIGNS = %w[x o]
 
   attr_reader :board
 
-  def initialize
-    @board = Array.new(3) { |i| Array.new(3) { |j| (j + i * 3).to_s } }
+  def initialize(size)
+    @size = size
+    @board = Array.new(size) { |i| Array.new(size) { |j| (j + i * size).to_s.center(size) } }
     @players = []
   end
 
-  def play(player, index)
-    @board.flatten[index] = player.sign
+  def valid_index?(index)
+    return false if index > @size * @size
+
+    !ALLOWED_SIGNS.include?(@board.flatten[index].strip)
+  end
+
+  def update_board(player)
+    index = player.play
+
+    if valid_index?(index)
+      @board[index / @size][index % @size] = player.sign.center(@size)
+      print_board
+    else
+      puts "#{index} is an invalid option."
+      update_board(player)
+    end
   end
 
   def add_player(player)
