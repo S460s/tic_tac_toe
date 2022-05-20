@@ -19,8 +19,6 @@ class Gameboard
       return false
     end
 
-    puts 'Tic Tac Toe!'
-
     until @winner || draw?
       @players.each do |player|
         update_board(player)
@@ -32,9 +30,7 @@ class Gameboard
       end
     end
 
-    clear
-    puts 'GG'
-    print_board
+    announce_winner
   end
 
   def add_player(player)
@@ -42,6 +38,13 @@ class Gameboard
   end
 
   private
+
+  def announce_winner
+    clear
+    puts 'GG'
+    print_board
+    puts "#{@winner.name} won!"
+  end
 
   def draw?
     @turns_played == @size * @size

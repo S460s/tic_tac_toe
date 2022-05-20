@@ -6,12 +6,8 @@ class Player
     @name = name
   end
 
-  def play(isFirst = true)
-    puts "#{name}'s turn" if isFirst
-    ans = gets.chomp
-    return ans.to_i if ans.match?(/\A-?\d+\Z/)
-
-    puts 'Invalid input, please try again.'
-    play false
+  def play
+    puts "#{name}'s turn"
+    gets.chomp
   end
 end
