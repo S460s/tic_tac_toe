@@ -1,7 +1,8 @@
+require_relative 'clearable'
+
 class Gameboard
   ALLOWED_SIGNS = %w[x o]
-
-  attr_reader :board
+  include Clearable
 
   def initialize(size)
     @turns_played = 0
@@ -16,6 +17,8 @@ class Gameboard
       return false
     end
 
+    puts 'Tic Tac Toe!'
+
     until game_over?
       @players.each do |player|
         update_board(player)
@@ -24,6 +27,7 @@ class Gameboard
     end
 
     puts 'GG'
+    print_board
   end
 
   def add_player(player)
@@ -37,14 +41,16 @@ class Gameboard
   end
 
   def update_board(player)
+    clear
+    print_board
     index = player.play
 
     if valid_index?(index)
-      @board[index / @size][index % @size] = player.sign
+      @board[index.to_i / @size][index.to_i % @size] = player.sign
       @turns_played += 1
-      print_board
     else
       puts "#{index} is an invalid option."
+      sleep 1
       update_board(player)
     end
   end
@@ -57,8 +63,9 @@ class Gameboard
   end
 
   def valid_index?(index)
-    return false if index > @size * @size
+    return false unless index.match?(/\A-?\d+\Z/)
+    return false if index.to_i > @size * @size
 
-    !ALLOWED_SIGNS.include?(@board.flatten[index])
+    !ALLOWED_SIGNS.include?(@board.flatten[index.to_i])
   end
 end
