@@ -14,10 +14,7 @@ class Gameboard
   end
 
   def start_game
-    if @players.length != 2
-      puts 'Wrong number of players, shutting down.'
-      return false
-    end
+    check_players
 
     until @winner || draw?
       @players.each do |player|
@@ -37,13 +34,49 @@ class Gameboard
     @players << player
   end
 
+  def reset(_size)
+    @winner = false
+  end
+
   private
 
   def announce_winner
-    clear
-    puts 'GG'
     print_board
-    puts "#{@winner.name} won!"
+    puts 'GG'
+    if draw?
+      puts 'Draw!'
+    else
+      puts "#{@winner.name} won!"
+    end
+  end
+
+  def play_round(player)
+    print_board
+    index = player.play
+
+    if valid_index?(index)
+      update_board!(index.to_i, player.sign)
+    else
+      handle_invalid_input(index, player)
+    end
+  end
+
+  def handle_invalid_input(index, player)
+    puts "#{index} is an invalid option."
+    sleep 1
+    play_round(player)
+  end
+
+  def print_board
+    clear
+    @board.each do |row|
+      row.each { |sign| print "|#{sign.center(@size)}|" }
+      puts
+    end
+  end
+
+  def check_players
+    raise 'Wrong number of players (!= 2)' if @players.length != 2
   end
 
   def draw?
@@ -53,7 +86,7 @@ class Gameboard
   def game_over?(sign)
     return true if draw?
 
-    @board.each_with_index do |_row, i|
+    @size.times do |i|
       win_conditions = Array.new(4, true)
 
       @size.times do |j|
@@ -68,34 +101,9 @@ class Gameboard
     false
   end
 
-  def play_round(player)
-    clear
-    print_board
-    index = player.play
-
-    if valid_index?(index)
-      update_board(index.to_i, player.sign)
-    else
-      handle_invalid_input(index, player)
-    end
-  end
-
-  def handle_invalid_input(index, player)
-    puts "#{index} is an invalid option."
-    sleep 1
-    play_round(player)
-  end
-
-  def update_board(index, sign)
+  def update_board!(index, sign)
     @board[index / @size][index % @size] = sign
     @turns_played += 1
-  end
-
-  def print_board
-    @board.each do |row|
-      row.each { |sign| print "|#{sign.center(@size)}|" }
-      puts
-    end
   end
 
   def valid_index?(index)
