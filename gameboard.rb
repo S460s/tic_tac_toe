@@ -1,7 +1,7 @@
 require_relative 'clearable'
 
 class Gameboard
-  ALLOWED_SIGNS = %w[x o]
+  ALLOWED_SIGNS = %w[x o].freeze
 
   include Clearable
 
@@ -21,7 +21,7 @@ class Gameboard
 
     until @winner || draw?
       @players.each do |player|
-        update_board(player)
+        play_round(player)
 
         if game_over?(player.sign)
           @winner = player
@@ -68,19 +68,27 @@ class Gameboard
     false
   end
 
-  def update_board(player)
+  def play_round(player)
     clear
     print_board
     index = player.play
 
     if valid_index?(index)
-      @board[index.to_i / @size][index.to_i % @size] = player.sign
-      @turns_played += 1
+      update_board(index.to_i, player.sign)
     else
-      puts "#{index} is an invalid option."
-      sleep 1
-      update_board(player)
+      handle_invalid_input(index, player)
     end
+  end
+
+  def handle_invalid_input(index, player)
+    puts "#{index} is an invalid option."
+    sleep 1
+    play_round(player)
+  end
+
+  def update_board(index, sign)
+    @board[index / @size][index % @size] = sign
+    @turns_played += 1
   end
 
   def print_board
