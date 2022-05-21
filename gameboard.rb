@@ -1,4 +1,5 @@
 require_relative 'clearable'
+require_relative 'player'
 
 class Gameboard
   ALLOWED_SIGNS = %w[x o].freeze
@@ -14,7 +15,7 @@ class Gameboard
   end
 
   def start_game
-    check_players
+    init_players
 
     until @winner || draw?
       @players.each do |player|
@@ -30,24 +31,39 @@ class Gameboard
     announce_winner
   end
 
-  def add_player(player)
-    @players << player
-  end
-
-  def reset(_size)
-    @winner = false
-  end
-
   private
 
   def announce_winner
     print_board
     puts 'GG'
+
+    print_winner
+    play_again
+  end
+
+  def print_winner
     if draw?
       puts 'Draw!'
     else
       puts "#{@winner.name} won!"
     end
+  end
+
+  def play_again
+    puts 'Play again (y/n)?'
+    ans = gets.chomp
+
+    if ans == 'y'
+      reset
+    else
+      puts 'Thanks for playing!'
+    end
+  end
+
+  def reset
+    initialize @size
+    clear
+    start_game
   end
 
   def play_round(player)
@@ -75,8 +91,9 @@ class Gameboard
     end
   end
 
-  def check_players
-    raise 'Wrong number of players (!= 2)' if @players.length != 2
+  def init_players
+    @players << Player.new('x')
+    @players << Player.new('o')
   end
 
   def draw?
